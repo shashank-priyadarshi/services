@@ -42,6 +42,56 @@ services:
       timeout: 10s
       retries: 3
     restart: always
+  mysql:
+    container_name: mysql
+    image: mysql:8.0
+    environment:
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=
+      - MYSQL_ROOT_PASSWORD=
+    volumes:
+      - mysql:/var/lib/mysql
+    restart: always
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ee:latest
+    ports:
+      - 
+      -
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    restart: always
+  rancher:
+    container_name: rancher
+    image: rancher/rancher
+    privileged: true
+    ports:
+      - 
+      -
+    restart: always
+  jenkins:
+    container_name: jenkins
+    image: jenkins/jenkins:lts
+    ports:
+      -
+    restart: always
+  nextcloud:
+    container_name: nextcloud
+    image: nextcloud:latest
+    depends_on:
+      - mysql
+    ports:
+      - 
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=
+      - MYSQL_PASSWORD=
+    volumes:
+      - nextcloud:/var/www/html
+    restart: always
   backend:
     container_name: upgraded-disco
     image: upgraded-disco
@@ -60,36 +110,13 @@ services:
     ports:
       - 
     restart: always
-  nextcloud:
-    image: nextcloud:latest
-    restart: always
-    ports:
-      - 
-    environment:
-      - MYSQL_HOST=mysql
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=
-      - MYSQL_PASSWORD=
-    volumes:
-      - nextcloud:/var/www/html
-  mysql:
-    image: mysql:8.0
-    restart: always
-    environment:
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
-      - MYSQL_PASSWORD=
-      - MYSQL_ROOT_PASSWORD=
-    volumes:
-      - mysql:/var/lib/mysql
-  portainer:
-  rancher:
-  jenkins:
+    
 volumes:
   mongodb-data:
     name: mongodb-data
   mysql:
   nextcloud:
+  portainer_data:
 networks:
   mongodb_network:
     name: mongodb_network
