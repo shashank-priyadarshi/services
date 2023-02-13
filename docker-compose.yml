@@ -60,9 +60,36 @@ services:
     ports:
       - 
     restart: always
+  nextcloud:
+    image: nextcloud:latest
+    restart: always
+    ports:
+      - 
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=
+      - MYSQL_PASSWORD=
+    volumes:
+      - nextcloud:/var/www/html
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=
+      - MYSQL_ROOT_PASSWORD=
+    volumes:
+      - mysql:/var/lib/mysql
+  portainer:
+  rancher:
+  jenkins:
 volumes:
   mongodb-data:
     name: mongodb-data
+  mysql:
+  nextcloud:
 networks:
   mongodb_network:
     name: mongodb_network
