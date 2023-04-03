@@ -1,5 +1,44 @@
 version: "3.8"
 services:
+  cloudflared:
+    image: cloudflare/cloudflared
+    container_name: cloudflare-tunnel
+    restart: always
+    command: tunnel run
+    networks:
+      - 
+    environment:
+      - TUNNEL_TOKEN=
+  coder:
+    image: ghcr.io/coder/coder:latest
+    environment:
+      CODER_PG_CONNECTION_URL: "postgresql://:@database/?sslmode=disable"
+      CODER_ADDRESS: ""
+      CODER_ACCESS_URL: ""
+    networks:
+      - 
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    group_add:
+      - 
+    depends_on:
+      database:
+        condition: service_healthy
+  database:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER:
+      POSTGRES_PASSWORD:
+      POSTGRES_DB:
+    networks:
+      - 
+    volumes:
+      - coder_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U  -d " ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   mongodb:
     image: mongo
     container_name: mongodb
@@ -9,11 +48,9 @@ services:
     volumes:
       - mongodb-data:/data/db
     networks:
-      - mongodb_network
-    ports:
       - 
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      test: echo 'db.runCommand("ping").ok' | mongosh :/test --quiet
       interval: 30s
       timeout: 10s
       retries: 3
@@ -22,8 +59,8 @@ services:
     image: mongo-express
     container_name: mongo-express
     environment:
-      - ME_CONFIG_MONGODB_SERVER=mongodb
-      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+      - ME_CONFIG_MONGODB_SERVER=
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=
       - ME_CONFIG_MONGODB_ADMINUSERNAME=
       - ME_CONFIG_MONGODB_ADMINPASSWORD=
       - ME_CONFIG_BASICAUTH_USERNAME=
@@ -33,11 +70,9 @@ services:
     depends_on:
       - mongodb
     networks:
-      - mongodb_network
-    ports:
       - 
     healthcheck:
-      test:  wget --quiet --tries=3 --spider http://@localhost:port || exit 1
+      test: wget --quiet --tries=3 --spider http://:@express:8081 || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
@@ -45,78 +80,93 @@ services:
   mysql:
     container_name: mysql
     image: mysql:8.0
+    restart: always
+    networks:
+      - common
     environment:
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
+      - MYSQL_DATABASE=
+      - MYSQL_USER=
       - MYSQL_PASSWORD=
       - MYSQL_ROOT_PASSWORD=
     volumes:
       - mysql:/var/lib/mysql
+  searx:
+    image: searx/searx
+    container_name: searx
+    volumes:
+      - search_data:/etc/searx
+    networks:
+      - 
+    environment:
+      - BASE_URL=http://localhost:11001/
     restart: always
   portainer:
     container_name: portainer
     image: portainer/portainer-ee:latest
-    ports:
-      - 
-      -
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
     restart: always
+    networks:
+      - 
   rancher:
     container_name: rancher
     image: rancher/rancher
-    privileged: true
-    ports:
-      - 
-      -
     restart: always
+    volumes:
+      - rancher_data:/var/lib/rancher
+    privileged: true
+    environment:
+      - CATTLE_BOOTSTRAP_PASSWORD=
+    networks:
+      - 
   jenkins:
     container_name: jenkins
     image: jenkins/jenkins:lts
-    ports:
-      -
-    restart: always
+    networks:
+      - 
+    volumes:
+      - jenkins_data:/var/jenkins_home
   nextcloud:
     container_name: nextcloud
     image: nextcloud:latest
-    depends_on:
-      - mysql
-    ports:
+    restart: always
+    networks:
       - 
     environment:
-      - MYSQL_HOST=mysql
-      - MYSQL_DATABASE=nextcloud
+      - MYSQL_HOST=
+      - MYSQL_DATABASE=
       - MYSQL_USER=
       - MYSQL_PASSWORD=
     volumes:
       - nextcloud:/var/www/html
-    restart: always
   backend:
-    container_name: upgraded-disco
-    image: upgraded-disco
+    container_name:
+    image:
     depends_on:
-      - mongodb
+      - 
     networks:
-      - mongodb_network
-    ports:
       - 
     restart: always
   portfolio:
-    container_name: portfolio
-    image: portfolio
+    container_name:
+    image:
     depends_on:
-      - backend
-    ports:
+      - 
+    networks:
       - 
     restart: always
-    
+
 volumes:
   mongodb-data:
     name: mongodb-data
   mysql:
   nextcloud:
   portainer_data:
+  search_data:
+  rancher_data:
+  jenkins_data:
+  coder_data:
+
+
 networks:
-  mongodb_network:
-    name: mongodb_network
