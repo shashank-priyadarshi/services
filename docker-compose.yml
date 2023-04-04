@@ -6,17 +6,17 @@ services:
     restart: always
     command: tunnel run
     networks:
-      - 
+      - common
     environment:
-      - TUNNEL_TOKEN=
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
   coder:
     image: ghcr.io/coder/coder:latest
     environment:
-      CODER_PG_CONNECTION_URL: "postgresql://:@database/?sslmode=disable"
-      CODER_ADDRESS: ""
-      CODER_ACCESS_URL: ""
+      CODER_PG_CONNECTION_URL: ${POSTGRES_URI}
+      CODER_ADDRESS: "0.0.0.0:7080"
+      CODER_ACCESS_URL: ${CODER_URL}
     networks:
-      - 
+      - common
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     group_add:
@@ -27,15 +27,19 @@ services:
   database:
     image: postgres:latest
     environment:
-      POSTGRES_USER:
-      POSTGRES_PASSWORD:
-      POSTGRES_DB:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTERGRES_DB}
     networks:
-      - 
+      - common
     volumes:
       - coder_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U  -d " ]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_PASSWORD}"
+        ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -43,36 +47,37 @@ services:
     image: mongo
     container_name: mongodb
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=
-      - MONGO_INITDB_ROOT_PASSWORD=
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
     volumes:
       - mongodb-data:/data/db
     networks:
-      - 
+      - mongodb_network
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh :/test --quiet
+      test: echo 'db.runCommand("ping").ok' | mongosh mongodb:27017/test --quiet
       interval: 30s
       timeout: 10s
       retries: 3
     restart: always
   mongo-express:
     image: mongo-express
-    container_name: mongo-express
+    container_name: express
     environment:
-      - ME_CONFIG_MONGODB_SERVER=
-      - ME_CONFIG_MONGODB_ENABLE_ADMIN=
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=
-      - ME_CONFIG_BASICAUTH_USERNAME=
-      - ME_CONFIG_BASICAUTH_PASSWORD=
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - ME_CONFIG_BASICAUTH_USERNAME=${ME_CONFIG_BASICAUTH_USERNAME}
+      - ME_CONFIG_BASICAUTH_PASSWORD=${ME_CONFIG_BASICAUTH_PASSWORD}
     volumes:
       - mongodb-data
     depends_on:
       - mongodb
     networks:
-      - 
+      - common
+      - mongodb_network
     healthcheck:
-      test: wget --quiet --tries=3 --spider http://:@express:8081 || exit 1
+      test: wget --quiet --tries=3 --spider http://${ME_CONFIG_BASICAUTH_USERNAME}:${ME_CONFIG_BASICAUTH_PASSWORD}@express:8081 || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
@@ -84,10 +89,10 @@ services:
     networks:
       - common
     environment:
-      - MYSQL_DATABASE=
-      - MYSQL_USER=
-      - MYSQL_PASSWORD=
-      - MYSQL_ROOT_PASSWORD=
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
       - mysql:/var/lib/mysql
   searx:
@@ -96,9 +101,9 @@ services:
     volumes:
       - search_data:/etc/searx
     networks:
-      - 
+      - common
     environment:
-      - BASE_URL=http://localhost:11001/
+      - BASE_URL=${BASE_URL}
     restart: always
   portainer:
     container_name: portainer
@@ -108,7 +113,7 @@ services:
       - portainer_data:/data
     restart: always
     networks:
-      - 
+      - common
   rancher:
     container_name: rancher
     image: rancher/rancher
@@ -117,14 +122,14 @@ services:
       - rancher_data:/var/lib/rancher
     privileged: true
     environment:
-      - CATTLE_BOOTSTRAP_PASSWORD=
+      - CATTLE_BOOTSTRAP_PASSWORD=${CATTLE_BOOTSTRAP_PASSWORD}
     networks:
-      - 
+      - common
   jenkins:
     container_name: jenkins
     image: jenkins/jenkins:lts
     networks:
-      - 
+      - common
     volumes:
       - jenkins_data:/var/jenkins_home
   nextcloud:
@@ -132,29 +137,45 @@ services:
     image: nextcloud:latest
     restart: always
     networks:
-      - 
+      - common
     environment:
-      - MYSQL_HOST=
-      - MYSQL_DATABASE=
-      - MYSQL_USER=
-      - MYSQL_PASSWORD=
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     volumes:
       - nextcloud:/var/www/html
   backend:
-    container_name:
-    image:
+    container_name: 
+    image: 
+    environment:
+      - SQL_URI=${SQL_URI}
+      - MONGO_URI=${MONGO_URI}
+      - DB_NAME=${DB_NAME}
+      - SERVER_PORT=${SERVER_PORT}
+      - TODO_API_PORT=${TODO_API_PORT}
+      - GH_INTEGRATION_ORIGIN=${GH_INTEGRATION_ORIGIN}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITHUB_USERNAME=${GITHUB_USERNAME}
+      - ALLOWED_ORIGIN=${ALLOWED_ORIGIN}
+      - SECRET_KEY=${SECRET_KEY}
+      - BIO=${BIO}
+      - GITHUB=${GITHUB}
+      - TODOS=${TODOS}
+      - GRAPH=${GRAPH}
+      - SCHEDULE=${SCHEDULE}
     depends_on:
-      - 
+      - mongodb
     networks:
-      - 
+      - common
     restart: always
   portfolio:
-    container_name:
-    image:
+    container_name: 
+    image: 
     depends_on:
-      - 
+      - backend
     networks:
-      - 
+      - common
     restart: always
 
 volumes:
@@ -170,3 +191,7 @@ volumes:
 
 
 networks:
+  common:
+    name: common
+  mongodb_network:
+    name: mongodb_network
