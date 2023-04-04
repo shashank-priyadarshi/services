@@ -52,7 +52,7 @@ services:
     volumes:
       - mongodb-data:/data/db
     networks:
-      - mongodb_network
+      - common
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh mongodb:27017/test --quiet
       interval: 30s
@@ -75,7 +75,6 @@ services:
       - mongodb
     networks:
       - common
-      - mongodb_network
     healthcheck:
       test: wget --quiet --tries=3 --spider http://${ME_CONFIG_BASICAUTH_USERNAME}:${ME_CONFIG_BASICAUTH_PASSWORD}@express:8081 || exit 1
       interval: 30s
@@ -196,5 +195,3 @@ volumes:
 networks:
   common:
     name: common
-  mongodb_network:
-    name: mongodb_network
