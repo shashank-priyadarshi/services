@@ -164,6 +164,9 @@ services:
       - TODOS=${TODOS}
       - GRAPH=${GRAPH}
       - SCHEDULE=${SCHEDULE}
+      - NEWRELIC_APP=${NEWRELIC_APP}
+      - NEWRELIC_LICENSE=${NEWRELIC_LICENSE}
+      - NEWRELIC_LOG_FORWARD=${NEWRELIC_LOG_FORWARD}
     depends_on:
       - mongodb
     networks:
