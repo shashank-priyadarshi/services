@@ -27,7 +27,7 @@ services:
       - ME_CONFIG_BASICAUTH_USERNAME=${ME_CONFIG_BASICAUTH_USERNAME}
       - ME_CONFIG_BASICAUTH_PASSWORD=${ME_CONFIG_BASICAUTH_PASSWORD}
     volumes:
-      - mongodb-data
+      - mongodb-data:/data/db
     depends_on:
       - mongodb
     networks:
@@ -37,6 +37,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    ports:
+      - 8081:8081
     restart: always
   mysql:
     container_name: mysql
@@ -58,6 +60,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
     restart: always
+    ports:
+      - 9000:9000
     networks:
       - common
   backend:
@@ -86,6 +90,8 @@ services:
       - mongodb
     networks:
       - common
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
     restart: always
   portfolio:
     container_name: portfolio
@@ -94,6 +100,8 @@ services:
       - backend
     networks:
       - common
+    ports:
+      - 80:80
     restart: always
 
 volumes:
