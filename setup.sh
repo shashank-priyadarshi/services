@@ -32,9 +32,16 @@ echo Installing docker-compose, gh, tree and other dependencies
 # sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
-sudo apt install gh tree
+sudo apt install gh tree jq
 echo All installations completed
 echo ***********************************
+# Setup environment variables using read_secrets.sh and portfolio_secrets.json
+echo ***********************************
 echo Logging in to GitHub and Docker Hub
-gh auth login
-docker login -u $DOCKER_REPOSITORY_USERNAME
+mkdir -p ~/.config/gh
+echo "github.com:" > ~/.config/gh/hosts.yml
+echo "    oauth_token: $GITHUB_TOKEN" >> ~/.config/gh/hosts.yml
+echo "    user: $GITHUB_USERNAME" >> ~/.config/gh/hosts.yml
+docker login -u "$DOCKER_REPOSITORY_USERNAME" -p "$DOCKER_REPOSITORY_TOKEN"
+echo ***********************************
+# Call portfolio environment setup script

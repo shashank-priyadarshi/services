@@ -1,0 +1,103 @@
+version: "3.8"
+services:
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    ports:
+      - 9000:9000
+    restart: always
+    networks:
+      - common
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    volumes:
+      - mongodb-data:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - common
+    ports:
+      - 27017:27017
+    restart: always
+  mongo-express:
+    image: mongo-express
+    container_name: express
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=false
+    volumes:
+      - mongodb-data:/data/db
+    depends_on:
+      - mongodb
+    networks:
+      - common
+    ports:
+      - 8082:8081
+    restart: always
+  mysql:
+    container_name: mysql
+    image: mysql:8.0
+    restart: always
+    networks:
+      - common
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - mysql:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - 3306:3306
+      - 33060:33060
+  
+volumes:
+  mongodb-data:
+    name: mongodb-data
+  portainer_data:
+  mysql:
+
+networks:
+  common:
+    name: common
+  
+  # backend:
+  #   container_name: backend
+  #   image: nathukaka/upgraded-disco:updated-middleware
+  #   environment:
+  #     - SQL_URI="mysql://admin:ashank43@mysql:3306/db"
+  #     - MONGO_URI="mongodb://admin:newreplica76PORD@mongodb:27017/portfolio"
+  #     - DB_NAME="portfolio"
+  #     - SERVER_PORT="10000"
+  #     - TODO_API_PORT="10001"
+  #     - GH_INTEGRATION_ORIGIN="10002"
+  #     - GITHUB_TOKEN="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"
+  #     - GITHUB_USERNAME="shashank-priyadarshi"
+  #     - ALLOWED_ORIGIN="https://ssnk.in"
+  #     - SECRET_KEY=""
+  #     - BIO="biodata"
+  #     - GITHUB="githubdata"
+  #     - TODOS="tododata"
+  #     - GRAPH="graphdata"
+  #     - SCHEDULE="scheduledata"
+  #     - NEWRELIC_APP="backend"
+  #     - NEWRELIC_LICENSE="eu01xx1f188afd22d5123401853d4e80c863NRAL"
+  #     - NEWRELIC_LOG_FORWARD=${NEWRELIC_LOG_FORWARD}
+  #   depends_on:
+  #     - mongodb
+  #   networks:
+  #     - common
+  #   ports:
+  #     - 10000:10000
+  #   restart: always
+  # portfolio:
+  #   container_name: portfolio
+  #   image: nathukaka/portfolio:admin
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - common
+  #   ports:
+  #     - 80:80
+  #   restart: always
