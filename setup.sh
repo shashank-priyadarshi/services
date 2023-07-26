@@ -36,6 +36,7 @@ sudo apt install gh tree jq
 echo All installations completed
 echo ***********************************
 # Setup environment variables using read_secrets.sh and portfolio_secrets.json
+./read_secrets.sh || exit
 echo ***********************************
 echo Logging in to GitHub and Docker Hub
 mkdir -p ~/.config/gh

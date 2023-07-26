@@ -8,17 +8,17 @@ fi
 
 # Set the value of GITHUB_TOKEN
 GITHUB_TOKEN=$1
+DEV_SETUP=0
+BRANCH_NAME=dev
 
 # Check if two arguments are received
 if [ $# -eq 2 ]; then
   # Set the value of DEV_SETUP
   DEV_SETUP=$2
   BRANCH_NAME=main
-else
-  # Set the value of DEV_SETUP to 0
-  DEV_SETUP=0
-  BRANCH_NAME=dev
 fi
+
+echo "Running setup in $(if [[ $DEV_SETUP -eq 0 ]]; then echo development; else echo production; fi) mode"
 
 gclone() {
   git clone -b $1 $2

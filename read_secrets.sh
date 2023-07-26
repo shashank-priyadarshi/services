@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Read secrets from JSON file
-SECRETS_FILE="./secrets.json"
+SECRETS_FILE="./portfolio_secrets.json"
 SECRETS_JSON=$(cat $SECRETS_FILE)
 
 for key in $(echo "$SECRETS_JSON" | jq -r 'keys[]'); do
