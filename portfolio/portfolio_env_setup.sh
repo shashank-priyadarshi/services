@@ -65,15 +65,23 @@ fi
 
 mkdir -p ~/Code && mkdir -p ~/mongodb/data && cd ~/Code || exit 1
 gclone $BRANCH_NAME $GITHUB_URL/services
-cp -r ~/Code/services/portfolio/* ~/mongodb/ && cd ~/mongodb/ && docker-compose up -d || exit 1
+cp -r ~/Code/services/portfolio/* ~/mongodb/ && cd ~/mongodb/
+COLLECTIONS="\"$GITHUB\", \"$GRAPH\", \"$SCHEDULE\""
+sed -i 's/^const dbName=.*/const dbName="'"$MONGO_INITDB_DATABASE"'";/' init-mongo.js
+sed -i 's/^const collections=.*/const collections= ['"$COLLECTIONS"'];/' init-mongo.js
+#sed -i "s/^const dbName=.*/const dbName=\"$DB_NAME\";/" init-mongo.js
+#sed -i "s/^const collections=.*/const collections= [$COLLECTIONS];/" init-mongo.js
+sed -i.bak -e "s|('adminpass123', 'salt')|('$ADMIN_PASSWORD', '$ADMIN_SALT')|" \
+           -e "s|('Admin', 'admin@example.com', 'admin',|('$ADMIN', '$ADMIN_EMAIL', '$ADMIN_USERNAME',|" init.sql
+rm init.sql.bak
+export MONGO_URI="mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@localhost:27017/${MONGO_INITDB_DATABASE}"
+export SQL_URI="mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}"
+
 # Write a script that starts prerequisite containers for backend, then initialises mongo and sql instances with default values
-# if DEV_SETUP is 0, start docker-compose with dev yaml and setup local dev env, else with prod yaml
-# Edit portfolio yaml, init.sql and init-mongo.js to read variable values from env var
-# Create connection urls based on passwords in portfolio_secrets.json
-# Provide default values for mongo objects in json file in local dir in services repo
+docker-compose up -d || exit 1
+
 
 # Backlog: Write a script that picks docker-compose from services repo and builds code, then starts containers
-# Backlog: If any change made to backend or frontend, should be reflected in docker image
-gclone $BRANCH_NAME $GITHUB_URL/portfolio && gclone $BRANCH_NAME $GITHUB_URL/upgraded-disco
-cd upgraded-disco && go mod tidy && go get -u && git commit -am "updated dep packages" && export GH=$GITHUB_TOKEN && export SETUP=$DEV_SETUP && gnome-terminal -- bash -c "air; if [ \$? -ne 0 ]; then exit; fi"
-cd ../portfolio && npm i --f --legacy-peer-deps && gnome-terminal -- bash -c "npm run start; if [ \$? -ne 0 ]; then exit; fi"
+#gclone $BRANCH_NAME $GITHUB_URL/portfolio && gclone $BRANCH_NAME $GITHUB_URL/upgraded-disco
+#cd upgraded-disco && go mod tidy && go get -u && git commit -am "updated dep packages" && export GH=$GITHUB_TOKEN && export SETUP=$DEV_SETUP && gnome-terminal -- bash -c "air; if [ \$? -ne 0 ]; then exit; fi"
+#cd ../portfolio && npm i --f --legacy-peer-deps && gnome-terminal -- bash -c "npm run start; if [ \$? -ne 0 ]; then exit; fi"

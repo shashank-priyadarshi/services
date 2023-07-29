@@ -18,7 +18,7 @@ CREATE TABLE passwords (
                            salt VARCHAR(100)
 );
 
-INSERT INTO passwords (password, salt) VALUES ('adminpass', 'salt');
+INSERT INTO passwords (password, salt) VALUES ('adminpass123', 'salt');
 
 SET @admin_password_id = LAST_INSERT_ID();
 

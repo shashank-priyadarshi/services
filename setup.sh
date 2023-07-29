@@ -46,3 +46,4 @@ echo "    user: $GITHUB_USERNAME" >> ~/.config/gh/hosts.yml
 docker login -u "$DOCKER_REPOSITORY_USERNAME" -p "$DOCKER_REPOSITORY_TOKEN"
 echo ***********************************
 # Call portfolio environment setup script
+./portfolio_env_setup.sh $GITHUB_TOKEN

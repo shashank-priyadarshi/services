@@ -1,7 +1,6 @@
-db = db.getSiblingDB('test');
-db.createCollection('testCollection');
-db.createCollection('b');
-db.createCollection('g');
-db.createCollection('t');
-db.createCollection('gr');
-db.createCollection('s');
+const dbName="dbname";
+const collections= ["gh", "gr", "sch"];
+const db = db.getSiblingDB(dbName);
+collections.forEach((collection)=>{
+    db.createCollection(collection);
+});
