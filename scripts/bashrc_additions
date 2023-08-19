@@ -1,0 +1,27 @@
+case "$TERM" in
+xterm*|rxvt*)
+    PS1='\[\e]0;\u@\h: \w\a\][\[\033[32m\]\D{%Y-%m-%d %H:%M:%S}\[\033[0m\]] \w\$ '
+    ;;
+*)
+    ;;
+esac
+
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+export GO111=/usr/local/go111
+export GO120=/usr/local/go120
+export GOROOT=$GO120
+export GOPATH=$HOME/go
+export GOBIN=$GOPATH/bin
+export ZIG10=/usr/local/bin/zig-10
+export COUNTERFEITER_NO_GENERATE_WARNING=true
+export BASH_ONELINERS=$HOME/Documents/Notes/Docs/bash_oneliners
+
+export PATH=$PATH:$GOPATH/bin:$GOROOT/bin:${KREW_ROOT:-$HOME/.krew}/bin:$HOME/.local/bin:/home/<username>/go/bin/temp_bin:$ZIG10
+. "$HOME/.cargo/env"
+
+(u) | head -19
+# cat -n 10 $BASH_ONELINERS
+export GOPRIVATE=

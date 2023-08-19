@@ -1,0 +1,59 @@
+source $HOME/print_dir.sh
+
+export DOC_PARENT="$HOME/Documents"
+export DOC_DIR="$DOC_PARENT/Docs"
+export NOTE_DIR="$DOC_PARENT/Notes"
+export PRINT_SCRIPT="$HOME/print_file_content.sh"
+export EDIT_SCRIPT="$HOME/edit_file.sh"
+
+alias gclone="git clone"
+alias gcmit="git commit -m $1"
+alias gpsh="git push"
+alias gpull="git pull $1 $2"
+alias gpv="go mod vendor -v; gpsh;"
+
+alias spr="" # setting org proxy
+alias uspr="" # unsetting org proxy
+alias stn="shutdown now"
+alias x="exit"
+alias ll="ls -la"
+alias exe="chmod +x $1"
+alias zipt="tar -cvzf $1 $2"
+alias gcrm="google-chrome"
+alias wlp="wonderwall"
+alias bwlp="bing-wall"
+alias office="libreoffice"
+alias cls="clear"
+alias tweak="gnome-tweaks"
+alias side="sidekick-browser"
+# nmcli device wifi connect WIFI-MAC
+alias onwifi="nmcli radio wifi on && $HOME/wifi-parser.sh <Saved Network>"
+alias offwifi="nmcli radio wifi off"
+alias conn="$HOME/wifi-parser.sh $1"
+alias disconn="nmcli device disconnect <Network Device>" # find using command 'nmcli device status', and select the appropriate network device
+
+alias d="cd $HOME/Downloads && ls"
+alias c="cd $HOME/Code && ls"
+alias h="cd ~ && ls"
+alias doc="cd $DOC_DIR && tree ."
+alias n="cd $NOTE_DIR && tree ."
+alias dia="cd $DOC_PARENT/Diagrams && tree ."
+alias o="cd $HOME/Code/open-source && ls"
+
+# alias tree="print_directory $1 $2"
+alias edit="$EDIT_SCRIPT $1"
+
+alias print="$PRINT_SCRIPT"
+alias alia="print $HOME .bash_aliases"
+alias sec="print $NOTE_DIR/Secrets access_token"
+alias pass="print $NOTE_DIR/Secrets pass"
+alias t="print $NOTE_DIR/To-Do todo"
+alias u="print $NOTE_DIR/To-Do urgent"
+alias read="print $NOTE_DIR/To-Do read"
+alias url="print $NOTE_DIR/Docs urls"
+
+alias fabnet="bash $HOME/fabnet.sh $1"
+alias glnd="gcrm $DOC_PARENT/Docs/GolandKeyboardShortcuts.pdf"
+alias vscode="gcrm $DOC_PARENT/Docs/VSCodeKeyboardShortcuts.pdf"
+
+alias machine="ssh -i $HOME/.ssh/private_key user@ip"
