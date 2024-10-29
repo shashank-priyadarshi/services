@@ -1,4 +1,7 @@
 source $HOME/print_dir.sh
+source $HOME/glocal.sh
+
+alias cls="clear"
 
 export DOC_PARENT="$HOME/Documents"
 export DOC_DIR="$DOC_PARENT/Docs"
@@ -6,6 +9,7 @@ export NOTE_DIR="$DOC_PARENT/Notes"
 export PRINT_SCRIPT="$HOME/print_file_content.sh"
 export EDIT_SCRIPT="$HOME/edit_file.sh"
 
+alias glocal="git_local_config"
 alias gclone="git clone"
 alias gcmit="git commit -m $1"
 alias gpsh="git push"
@@ -23,7 +27,6 @@ alias gcrm="google-chrome"
 alias wlp="wonderwall"
 alias bwlp="bing-wall"
 alias office="libreoffice"
-alias cls="clear"
 alias tweak="gnome-tweaks"
 alias side="sidekick-browser"
 # nmcli device wifi connect WIFI-MAC
