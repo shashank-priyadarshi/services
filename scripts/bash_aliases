@@ -36,7 +36,7 @@ alias conn="$HOME/wifi-parser.sh $1"
 alias disconn="nmcli device disconnect <Network Device>" # find using command 'nmcli device status', and select the appropriate network device
 
 alias d="cd $HOME/Downloads && ls"
-alias c="cd $HOME/Code && ls"
+alias c="source $HOME/cd.sh"
 alias h="cd ~ && ls"
 alias doc="cd $DOC_DIR && tree ."
 alias n="cd $NOTE_DIR && tree ."
