@@ -1,0 +1,219 @@
+# ~/.bashrc: executed by bash(1) for non-login shells.
+# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
+# for examples
+
+# If not running interactively, don't do anything
+case $- in
+    *i*) ;;
+      *) return;;
+esac
+
+# don't put duplicate lines or lines starting with space in the history.
+# See bash(1) for more options
+HISTCONTROL=ignoreboth
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=10000
+HISTFILESIZE=20000
+
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+
+# If set, the pattern "**" used in a pathname expansion context will
+# match all files and zero or more directories and subdirectories.
+#shopt -s globstar
+
+# make less more friendly for non-text input files, see lesspipe(1)
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+# set variable identifying the chroot you work in (used in the prompt below)
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+# --- PS1 (Prompt String 1) Configuration ---
+# Conditional PS1: Different prompt for inside and outside tmux
+
+# if [ -n "$TMUX" ]; then
+#   PROMPT_COMMAND=""
+# fi
+
+if [ -n "$TMUX" ]; then
+    # PS1 for inside tmux sessions: Simpler, no title setting, no redundant timestamp
+    # Green username@host, blue current directory, dollar sign
+    # PS1='\[\e[35m\]\W \$\[\e[0m\] '
+    PS1='\[\033[37m\]$(realpath --relative-to="$HOME" "$PWD") \[\033[0m\]'
+else
+    # PS1 for outside tmux: Can include date/time and set xterm title
+    case "$TERM" in
+        xterm-color|*-256color) color_prompt=yes;;
+    esac
+
+    if [ -n "$force_color_prompt" ]; then
+        if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+            color_prompt=yes
+        else
+            color_prompt=
+        fi
+    fi
+
+    if [ "$color_prompt" = yes ]; then
+        # This is the original colored prompt, without title setting for default terminals
+        PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    else
+        PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+    fi
+    unset color_prompt force_color_prompt
+
+    # This block for xterm/rxvt specifically sets the title and includes timestamp.
+    # It MUST be inside the `else` (non-TMUX) block.
+    case "$TERM" in
+    xterm*|rxvt*)
+        PS1='\[\e]0;\u@\h: \w\a\][\[\033[32m\]\D{%Y-%m-%d %H:%M:%S}\[\033[0m\]] \w\$ '
+        ;;
+    *)
+        ;;
+    esac
+fi
+# --- End PS1 Configuration ---
+
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    #alias dir='dir --color=auto'
+    #alias vdir='vdir --color=auto'
+
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+# colored GCC warnings and errors
+#export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+
+# some more ls aliases
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+# Add an "alert" alias for long running commands.  Use like so:
+#    sleep 10; alert
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+# Alias definitions.
+# You may want to put all your additions into a separate file like
+# ~/.bash_aliases, instead of adding them here directly.
+# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
+# enable programmable completion features (you don't need to enable
+# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+# sources /etc/bash.bashrc).
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+
+# attach to tmux session or open new if tmux present
+if command -v tmux &> /dev/null; then  # Check if tmux is installed
+  if tmux has-session -t s$USER 2>/dev/null; then # Check for existing session
+    tmux attach -t s$USER
+  else
+    tmux new-session -s s$USER
+  fi
+fi
+
+# ***********************************************************************
+
+export GOMETA=/usr/local/go
+export GO123=$GOMETA/123
+export GO124=$GOMETA/124
+export GO125=$GOMETA/125
+
+export GOROOT=$GO125
+export GOPATH=$HOME/go
+export GOBIN=$GOPATH/bin
+
+export ZIG14=$HOME/zig/14
+export ZIG15=$HOME/zig/15
+export ZIG_PATH=$ZIG15
+
+export ODIN_ROOT_CONTAINER=$HOME/odin
+export ODIN_VERSION_2025_03=2025-03
+export ODIN_VERSION_2025_10=2025-10
+export ODIN_VERSION=$ODIN_VERSION_2025_10
+export ODIN_ROOT=$ODIN_ROOT_CONTAINER/$ODIN_VERSION
+
+export PATH=$ODIN_ROOT:$ZIG_PATH:$GOROOT/bin:$HOME/.cargo/bin:$GOBIN:$HOME/RustRover/bin:$HOME/GoLand/bin:$HOME/WebStorm/bin:$HOME/JetBrains/bin:$PATH
+
+export GOPRIVATE=go.ssnk.in
+export GONOPROXY=go.ssnk.in
+export GONOSUMDB=go.ssnk.in
+
+. "$HOME/.cargo/env"
+
+[ -f "/home/shashank/.ghcup/env" ] && . "/home/shashank/.ghcup/env" # ghcup-env
+
+. "$HOME/.local/bin/env"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"   # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"   # This loads nvm bash_completion
+
+# pnpm
+export PNPM_HOME="/home/shashank/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+
+export FLYCTL_PATH=/home/shashank/.fly
+export PATH=$FLYCTL_PATH/bin:$PATH
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+
+# Load Angular CLI autocompletion.
+# source <(ng completion script)
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+. "/home/shashank/.deno/env"
+source /home/shashank/.local/share/bash-completion/completions/deno.bash
+
+[[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path bash)"
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+##__conda_setup="$('/home/shashank/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+##if [ $? -eq 0 ]; then
+  ##  eval "$__conda_setup"
+##else
+  ##  if [ -f "/home/shashank/miniconda3/etc/profile.d/conda.sh" ]; then
+    ##    . "/home/shashank/miniconda3/etc/profile.d/conda.sh"
+    ##else
+      ##  export PATH="/home/shashank/miniconda3/bin:$PATH"
+    ##fi
+##fi
+
+##unset __conda_setup
+# <<< conda initialize <<<
+##conda deactivate
+export PATH="$HOME/.local/bin:$PATH"
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+nvm use v24.8.0
