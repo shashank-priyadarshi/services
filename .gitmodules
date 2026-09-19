@@ -4,3 +4,9 @@
 [submodule "setup/osm/submods/tracker"]
 	path = setup/osm/submods/tracker
 	url = https://github.com/shashank-priyadarshi/tracker.git
+[submodule "submods/tracker"]
+	path = submods/tracker
+	url = https://github.com/shashank-priyadarshi/tracker.git
+[submodule "submods/add"]
+	path = submods/add
+	url = https://github.com/shashank-priyadarshi/add.git
