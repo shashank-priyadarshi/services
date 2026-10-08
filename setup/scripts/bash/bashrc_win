@@ -1,0 +1,24 @@
+# eval "$($HOME/.local/bin/mise activate bash)"
+prompt_git_path() {
+  local prefix
+
+  if prefix=$(git rev-parse --show-prefix 2>/dev/null); then
+    prefix=${prefix%/}
+    printf '%s::' "$prefix"
+  else
+    printf '::'
+  fi
+}
+
+PS1='$(prompt_git_path) '
+
+if [[ -r /usr/share/bash-completion/bash_completion ]]; then
+  source /usr/share/bash-completion/bash_completion
+fi
+source <(fzf --bash)
+
+export VCPKG_ROOT=$GOPATH/github.com/microsoft/vcpkg
+export PATH=$PATH:$VCPKG_ROOT:~/.local/bin:~/AppData/Local/Programs/twg/bin
+
+eval "$(ssh-agent -s)"
+echo $SSH_AUTH_SOCK
