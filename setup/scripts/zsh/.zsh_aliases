@@ -1,0 +1,21 @@
+source $HOME/Scripts/print_dir.sh
+source $HOME/Scripts/glocal.sh
+
+alias cls="clear"
+
+export PRINT_SCRIPT="$HOME/Scripts/print_file_content.sh"
+export EDIT_SCRIPT="$HOME/Scripts/edit_file.sh"
+
+alias glocal="git_local_config"
+alias gclone="git clone"
+alias gcmit="git commit -m $1"
+alias gpsh="git push"
+alias gpull="git pull $1 $2"
+
+alias tree="print_directory $1 $2"
+alias edit="$EDIT_SCRIPT $1"
+
+alias print="$PRINT_SCRIPT"
+alias alia="print $HOME .zsh_aliases"
+
+alias machine="ssh -i $HOME/.ssh/private_key $1@$2"
