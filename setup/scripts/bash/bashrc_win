@@ -1,4 +1,6 @@
-# eval "$($HOME/.local/bin/mise activate bash)"
+# Activate mise so its fzf installation is available.
+eval "$("$HOME/.local/bin/mise/bin/mise" activate bash)"
+
 prompt_git_path() {
   local prefix
 
@@ -15,10 +17,47 @@ PS1='$(prompt_git_path) '
 if [[ -r /usr/share/bash-completion/bash_completion ]]; then
   source /usr/share/bash-completion/bash_completion
 fi
-source <(fzf --bash)
 
-export VCPKG_ROOT=$GOPATH/github.com/microsoft/vcpkg
-export PATH=$PATH:$VCPKG_ROOT:~/.local/bin:~/AppData/Local/Programs/twg/bin
+if command -v fzf >/dev/null 2>&1; then
+  # Plain Tab starts fuzzy completion.
+  export FZF_COMPLETION_TRIGGER=''
+
+  # Remove options from earlier configurations.
+  unset FZF_COMPLETION_PATH_OPTS
+  unset FZF_COMPLETION_DIR_OPTS
+
+  # Load completion before overriding the candidate generators.
+  eval "$(fzf --bash)"
+
+  # Files and directories from the current level only.
+  _fzf_compgen_path() {
+    local root=${1:-.}
+
+    command find -L "$root" \
+      -mindepth 1 \
+      -maxdepth 1 \
+      $ -type f -o -type d -o -type l $ \
+      -print 2>/dev/null |
+      command sed 's@^\./@@'
+  }
+
+  # Directories from the current level only.
+  _fzf_compgen_dir() {
+    local root=${1:-.}
+
+    command find -L "$root" \
+      -mindepth 1 \
+      -maxdepth 1 \
+      -type d \
+      -print 2>/dev/null |
+      command sed 's@^\./@@'
+  }
+
+  bind '"\C-i": complete'
+fi
+
+export VCPKG_ROOT=/c/Users/s.priyadarshi/go/src/github.com/microsoft/vcpkg
+export PATH=$PATH:$VCPKG_ROOT:~/.local/bin:~/.local/bin/mise/bin:~/AppData/Local/Programs/twg/bin
 
 eval "$(ssh-agent -s)"
 echo $SSH_AUTH_SOCK
